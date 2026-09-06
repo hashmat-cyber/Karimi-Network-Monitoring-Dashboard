@@ -1,0 +1,217 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Reports · Karimi Network Monitor{% endblock %}
+
+{% block content %}
+
+<section class="hero">
+
+    <div>
+
+        <p class="eyebrow">NETWORK ANALYTICS</p>
+
+        <h1>Network Reports</h1>
+
+        <p class="subtitle">
+            Analyze uptime, performance and monitoring activity.
+        </p>
+
+    </div>
+
+    <a class="button"
+       href="{{ url_for('export_report') }}">
+        📥 Export CSV
+    </a>
+
+</section>
+
+
+<section class="stats">
+
+    <div class="stat-card">
+        <span>Devices</span>
+        <strong>{{ report_data|length }}</strong>
+    </div>
+
+    <div class="stat-card">
+        <span>Monitoring Checks</span>
+        <strong>{{ total_checks }}</strong>
+    </div>
+
+    <div class="stat-card">
+        <span>Total Alerts</span>
+        <strong>{{ total_alerts }}</strong>
+    </div>
+
+    <div class="stat-card">
+        <span>Report Status</span>
+        <strong class="small-value">
+            Ready
+        </strong>
+    </div>
+
+</section>
+
+
+<section class="panel">
+
+    <div class="panel-header">
+
+        <div>
+            <h2>Infrastructure Performance</h2>
+            <p>24-hour uptime and average response time</p>
+        </div>
+
+    </div>
+
+
+    <div class="table-wrapper">
+
+        <table>
+
+            <thead>
+
+                <tr>
+                    <th>Device</th>
+                    <th>IP Address</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th>Uptime</th>
+                    <th>Avg Response</th>
+                    <th>Last Checked</th>
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+            {% for item in report_data %}
+
+                <tr>
+
+                    <td>
+                        <strong>
+                            {{ item.name }}
+                        </strong>
+                    </td>
+
+                    <td class="mono">
+                        {{ item.ip }}
+                    </td>
+
+                    <td>
+                        {{ item.type }}
+                    </td>
+
+                    <td>
+
+                        {% if item.status == "Online" %}
+
+                            <span class="status online">
+                                ● Online
+                            </span>
+
+                        {% elif item.status == "Offline" %}
+
+                            <span class="status offline">
+                                ● Offline
+                            </span>
+
+                        {% else %}
+
+                            <span class="status unknown">
+                                ● Unknown
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+
+                        {% if item.uptime is not none %}
+                            {{ item.uptime }}%
+                        {% else %}
+                            —
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+
+                        {% if item.average_response is not none %}
+                            {{ item.average_response }} ms
+                        {% else %}
+                            —
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+                        {{ item.last_checked }}
+                    </td>
+
+                </tr>
+
+            {% else %}
+
+                <tr>
+                    <td colspan="7"
+                        class="empty">
+                        No report data available.
+                    </td>
+                </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+
+<section class="panel">
+
+    <div class="panel-header">
+
+        <div>
+            <h2>What this report measures</h2>
+            <p>Network performance indicators</p>
+        </div>
+
+    </div>
+
+    <div class="report-info">
+
+        <div>
+            <strong>Uptime</strong>
+            <p>
+                Percentage of successful monitoring checks
+                during the last 24 hours.
+            </p>
+        </div>
+
+        <div>
+            <strong>Average Response</strong>
+            <p>
+                Average ping response time for reachable devices.
+            </p>
+        </div>
+
+        <div>
+            <strong>Monitoring Checks</strong>
+            <p>
+                Total number of network checks stored in the database.
+            </p>
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}
+

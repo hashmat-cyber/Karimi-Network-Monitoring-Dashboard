@@ -1,0 +1,140 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Alerts · Karimi Network Monitor{% endblock %}
+
+{% block content %}
+
+<section class="hero">
+
+    <div>
+
+        <p class="eyebrow">SECURITY EVENTS</p>
+
+        <h1>Network Alerts</h1>
+
+        <p class="subtitle">
+            Review and manage network monitoring alerts.
+        </p>
+
+    </div>
+
+</section>
+
+
+<section class="panel">
+
+    <div class="panel-header">
+
+        <div>
+            <h2>Alert Center</h2>
+            <p>
+                {{ alerts|length }} recorded alert(s)
+            </p>
+        </div>
+
+
+        <form method="POST"
+              action="{{ url_for('clear_resolved_alerts') }}">
+
+            <button class="small-button"
+                    type="submit">
+                Clear Resolved
+            </button>
+
+        </form>
+
+    </div>
+
+
+    {% if alerts %}
+
+        <div class="alerts-list">
+
+            {% for alert in alerts %}
+
+                <div class="alert-card-row
+                    {% if alert.resolved %}
+                        resolved
+                    {% endif %}
+                ">
+
+                    <div class="alert-icon">
+                        !
+                    </div>
+
+
+                    <div class="alert-main">
+
+                        <div class="alert-title">
+
+                            <strong>
+                                {{ alert.device_name }}
+                            </strong>
+
+                            {% if alert.resolved %}
+
+                                <span class="badge resolved-badge">
+                                    RESOLVED
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge high-badge">
+                                    {{ alert.severity|upper }}
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <p>
+                            {{ alert.message }}
+                        </p>
+
+
+                        <small>
+                            {{ alert.created_at.strftime("%Y-%m-%d %H:%M:%S") }}
+                        </small>
+
+                    </div>
+
+
+                    {% if not alert.resolved %}
+
+                        <form method="POST"
+                              action="{{ url_for('resolve_alert', alert_id=alert.id) }}">
+
+                            <button class="small-button"
+                                    type="submit">
+                                Resolve
+                            </button>
+
+                        </form>
+
+                    {% endif %}
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    {% else %}
+
+        <div class="empty-box">
+
+            <strong>No alerts</strong>
+
+            <p>
+                Your network currently has no recorded alerts.
+            </p>
+
+        </div>
+
+    {% endif %}
+
+</section>
+
+{% endblock %}
+

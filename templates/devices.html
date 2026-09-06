@@ -1,0 +1,256 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Devices · Karimi Network Monitor{% endblock %}
+
+{% block content %}
+
+<section class="hero">
+
+    <div>
+        <p class="eyebrow">INFRASTRUCTURE</p>
+
+        <h1>Network Devices</h1>
+
+        <p class="subtitle">
+            Add, inspect and monitor devices connected to your network.
+        </p>
+    </div>
+
+    <a class="button secondary"
+       href="{{ url_for('dashboard') }}">
+        Dashboard
+    </a>
+
+</section>
+
+
+<section class="panel">
+
+    <div class="panel-header">
+
+        <div>
+            <h2>Add New Device</h2>
+            <p>Enter the device information below.</p>
+        </div>
+
+    </div>
+
+
+    <form method="POST"
+          action="{{ url_for('add_device') }}"
+          class="device-form">
+
+        <div class="form-group">
+
+            <label>Device Name</label>
+
+            <input
+                type="text"
+                name="name"
+                placeholder="e.g. Office Server"
+                required
+            >
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label>IP Address</label>
+
+            <input
+                type="text"
+                name="ip_address"
+                placeholder="e.g. 192.168.1.10"
+                required
+            >
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label>Device Type</label>
+
+            <select name="device_type">
+
+                <option>Computer</option>
+                <option>Router</option>
+                <option>Server</option>
+                <option>Printer</option>
+                <option>Switch</option>
+                <option>Other</option>
+
+            </select>
+
+        </div>
+
+
+        <button class="button" type="submit">
+            Add Device
+        </button>
+
+    </form>
+
+</section>
+
+
+<section class="panel">
+
+    <div class="panel-header">
+
+        <div>
+            <h2>Registered Devices</h2>
+
+            <p>
+                {{ devices|length }} device(s) registered
+            </p>
+
+        </div>
+
+
+        <a class="button"
+           href="{{ url_for('check_all') }}">
+            Check All
+        </a>
+
+    </div>
+
+
+    <div class="table-wrapper">
+
+        <table>
+
+            <thead>
+
+                <tr>
+                    <th>Device</th>
+                    <th>IP Address</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th>Response</th>
+                    <th>Last Checked</th>
+                    <th>Actions</th>
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+            {% for device in devices %}
+
+                <tr>
+
+                    <td>
+
+                        <a class="device-name"
+                           href="{{ url_for('device_details', device_id=device.id) }}">
+
+                            {{ device.name }}
+
+                        </a>
+
+                    </td>
+
+
+                    <td class="mono">
+                        {{ device.ip_address }}
+                    </td>
+
+
+                    <td>
+                        {{ device.device_type }}
+                    </td>
+
+
+                    <td>
+
+                        {% if device.status == "Online" %}
+
+                            <span class="status online">
+                                ● Online
+                            </span>
+
+                        {% elif device.status == "Offline" %}
+
+                            <span class="status offline">
+                                ● Offline
+                            </span>
+
+                        {% else %}
+
+                            <span class="status unknown">
+                                ● Unknown
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <td>
+
+                        {% if device.response_time is not none %}
+                            {{ "%.0f"|format(device.response_time) }} ms
+                        {% else %}
+                            —
+                        {% endif %}
+
+                    </td>
+
+
+                    <td>
+
+                        {% if device.last_checked %}
+                            {{ device.last_checked.strftime("%Y-%m-%d %H:%M") }}
+                        {% else %}
+                            Never
+                        {% endif %}
+
+                    </td>
+
+
+                    <td class="actions">
+
+                        <a class="small-button"
+                           href="{{ url_for('check_single_device', device_id=device.id) }}">
+                            Check
+                        </a>
+
+
+                        <form method="POST"
+                              action="{{ url_for('delete_device', device_id=device.id) }}"
+                              onsubmit="return confirm('Delete this device?');">
+
+                            <button class="danger-button"
+                                    type="submit">
+                                Delete
+                            </button>
+
+                        </form>
+
+                    </td>
+
+                </tr>
+
+            {% else %}
+
+                <tr>
+                    <td colspan="7" class="empty">
+                        No devices registered.
+                    </td>
+                </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+{% endblock %}
+

@@ -1,0 +1,204 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Device Details · Karimi Network Monitor{% endblock %}
+
+{% block content %}
+
+<section class="hero">
+
+    <div>
+
+        <p class="eyebrow">DEVICE MONITORING</p>
+
+        <h1>{{ device.name }}</h1>
+
+        <p class="subtitle">
+            Detailed network performance and uptime information.
+        </p>
+
+    </div>
+
+    <a class="button secondary"
+       href="{{ url_for('devices') }}">
+        Back to Devices
+    </a>
+
+</section>
+
+
+<section class="stats">
+
+    <div class="stat-card">
+
+        <span>IP Address</span>
+
+        <strong class="small-value">
+            {{ device.ip_address }}
+        </strong>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <span>Status</span>
+
+        <strong class="small-value">
+
+            {% if device.status == "Online" %}
+                🟢 Online
+            {% elif device.status == "Offline" %}
+                🔴 Offline
+            {% else %}
+                ⚪ Unknown
+            {% endif %}
+
+        </strong>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <span>24h Uptime</span>
+
+        <strong class="small-value">
+
+            {% if uptime is not none %}
+                {{ uptime }}%
+            {% else %}
+                —
+            {% endif %}
+
+        </strong>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <span>Average Response</span>
+
+        <strong class="small-value">
+
+            {% if avg_response is not none %}
+                {{ avg_response }} ms
+            {% else %}
+                —
+            {% endif %}
+
+        </strong>
+
+    </div>
+
+</section>
+
+
+<section class="panel">
+
+    <div class="panel-header">
+
+        <div>
+
+            <h2>Monitoring History</h2>
+
+            <p>
+                Recent monitoring checks
+            </p>
+
+        </div>
+
+        <a class="button"
+           href="{{ url_for('check_single_device', device_id=device.id) }}">
+            Check Now
+        </a>
+
+    </div>
+
+
+    <div class="table-wrapper">
+
+        <table>
+
+            <thead>
+
+                <tr>
+                    <th>Status</th>
+                    <th>Response Time</th>
+                    <th>Checked At</th>
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+            {% for item in history %}
+
+                <tr>
+
+                    <td>
+
+                        {% if item.status == "Online" %}
+
+                            <span class="status online">
+                                ● Online
+                            </span>
+
+                        {% else %}
+
+                            <span class="status offline">
+                                ● Offline
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <td>
+
+                        {% if item.response_time is not none %}
+                            {{ "%.0f"|format(
+                                item.response_time
+                            ) }} ms
+                        {% else %}
+                            —
+                        {% endif %}
+
+                    </td>
+
+
+                    <td>
+                        {{ item.checked_at.strftime(
+                            "%Y-%m-%d %H:%M:%S"
+                        ) }}
+                    </td>
+
+                </tr>
+
+            {% else %}
+
+                <tr>
+
+                    <td colspan="3"
+                        class="empty">
+
+                        No monitoring history yet.
+
+                    </td>
+
+                </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+{% endblock %}
+

@@ -1,0 +1,185 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Network Scanner · Karimi Network Monitor{% endblock %}
+
+{% block content %}
+
+<section class="hero">
+
+    <div>
+
+        <p class="eyebrow">NETWORK DISCOVERY</p>
+
+        <h1>Network Scanner</h1>
+
+        <p class="subtitle">
+            Scan a local network and discover reachable devices.
+        </p>
+
+    </div>
+
+    <a class="button secondary"
+       href="{{ url_for('dashboard') }}">
+        Dashboard
+    </a>
+
+</section>
+
+
+<section class="panel">
+
+    <div class="panel-header">
+
+        <div>
+            <h2>Scan Network</h2>
+
+            <p>
+                Enter a CIDR network such as 192.168.1.0/24
+            </p>
+        </div>
+
+    </div>
+
+
+    <form method="POST"
+          class="scanner-form">
+
+        <input
+            type="text"
+            name="network"
+            value="{{ network }}"
+            placeholder="192.168.1.0/24"
+            required
+        >
+
+        <button class="button"
+                type="submit">
+            🔎 Start Scan
+        </button>
+
+    </form>
+
+
+    {% if error %}
+
+        <div class="error-box">
+            {{ error }}
+        </div>
+
+    {% endif %}
+
+</section>
+
+
+{% if results %}
+
+<section class="stats">
+
+    <div class="stat-card">
+        <span>Addresses Scanned</span>
+        <strong>{{ scanned_count }}</strong>
+    </div>
+
+    <div class="stat-card">
+        <span>Online Devices</span>
+        <strong>{{ online_count }}</strong>
+    </div>
+
+    <div class="stat-card">
+        <span>Offline</span>
+        <strong>
+            {{ scanned_count - online_count }}
+        </strong>
+    </div>
+
+</section>
+
+
+<section class="panel">
+
+    <div class="panel-header">
+
+        <div>
+            <h2>Scan Results</h2>
+            <p>{{ network }}</p>
+        </div>
+
+    </div>
+
+
+    <div class="table-wrapper">
+
+        <table>
+
+            <thead>
+
+                <tr>
+                    <th>IP Address</th>
+                    <th>Status</th>
+                    <th>Response Time</th>
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+            {% for result in results %}
+
+                <tr>
+
+                    <td class="mono">
+                        {{ result.ip }}
+                    </td>
+
+                    <td>
+
+                        {% if result.online %}
+
+                            <span class="status online">
+                                ● Online
+                            </span>
+
+                        {% else %}
+
+                            <span class="status offline">
+                                ● Offline
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <td>
+
+                        {% if result.response_time is not none %}
+
+                            {{ "%.0f"|format(
+                                result.response_time
+                            ) }} ms
+
+                        {% else %}
+
+                            —
+
+                        {% endif %}
+
+                    </td>
+
+                </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+{% endif %}
+
+{% endblock %}
+

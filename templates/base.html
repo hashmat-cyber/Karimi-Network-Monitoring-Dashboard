@@ -1,0 +1,50 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}Karimi Network Monitor{% endblock %}</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<header class="topbar">
+
+    <div class="brand">
+        <div class="logo">K</div>
+
+        <div>
+            <strong>Karimi</strong>
+            <span>Network Monitor</span>
+        </div>
+    </div>
+
+    <nav>
+        <a href="{{ url_for('dashboard') }}">Dashboard</a>
+        <a href="{{ url_for('devices') }}">Devices</a>
+        <a href="{{ url_for('scanner') }}">Scanner</a>
+        <a href="{{ url_for('reports') }}">Reports</a>
+        <a href="{{ url_for('alerts') }}">Alerts</a>
+    </nav>
+
+</header>
+
+
+<main class="container">
+
+    {% block content %}{% endblock %}
+
+</main>
+
+
+<footer>
+    Karimi Network Monitoring Dashboard · Cybersecurity Portfolio Project
+</footer>
+
+</body>
+</html>
+
+

@@ -1,0 +1,324 @@
+﻿{% extends "base.html" %}
+
+{% block content %}
+
+<section class="hero">
+    <div>
+        <div class="eyebrow">NETWORK OPERATIONS</div>
+        <h1>Network Overview</h1>
+        <p>Monitor devices, uptime, response time and infrastructure alerts.</p>
+    </div>
+
+    <a class="button" href="{{ url_for('devices') }}">+ Add Device</a>
+</section>
+
+<section class="stats-grid">
+
+    <div class="stat-card">
+        <span>Total Devices</span>
+        <strong>{{ total_devices }}</strong>
+    </div>
+
+    <div class="stat-card">
+        <span>Online</span>
+        <strong>{{ online_devices }}</strong>
+    </div>
+
+    <div class="stat-card">
+        <span>Offline</span>
+        <strong>{{ offline_devices }}</strong>
+    </div>
+
+    <div class="stat-card">
+        <span>Active Alerts</span>
+        <strong>{{ active_alerts }}</strong>
+    </div>
+
+</section>
+
+<section class="quick-links">
+
+    <a href="{{ url_for('scanner') }}" class="quick-card">
+        <div class="quick-icon">🔎</div>
+        <div>
+            <strong>Network Scanner</strong>
+            <span>Discover online devices</span>
+        </div>
+    </a>
+
+    <a href="{{ url_for('reports') }}" class="quick-card">
+        <div class="quick-icon">📊</div>
+        <div>
+            <strong>Network Reports</strong>
+            <span>Uptime and performance reports</span>
+        </div>
+    </a>
+
+    <a href="{{ url_for('devices') }}" class="quick-card">
+        <div class="quick-icon">🖥️</div>
+        <div>
+            <strong>Device Manager</strong>
+            <span>Manage infrastructure</span>
+        </div>
+    </a>
+
+</section>
+
+<section class="panel">
+
+    <div class="panel-header">
+        <div>
+            <h2>Network Devices</h2>
+            <p>Live infrastructure status</p>
+        </div>
+
+        <span class="live-badge">● LIVE MONITORING</span>
+    </div>
+
+    <div class="table-wrapper">
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>Device</th>
+                    <th>IP Address</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th>Response</th>
+                    <th>Uptime</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for device in devices %}
+
+                <tr>
+
+                    <td>
+                        <a href="{{ url_for('device_details', device_id=device.id) }}">
+                            <strong>{{ device.name }}</strong>
+                        </a>
+                    </td>
+
+                    <td>{{ device.ip_address }}</td>
+
+                    <td>{{ device.device_type }}</td>
+
+                    <td>
+
+                        {% if device.status == "Online" %}
+
+                            <span class="status online">● Online</span>
+
+                        {% elif device.status == "Offline" %}
+
+                            <span class="status offline">● Offline</span>
+
+                        {% else %}
+
+                            <span class="status unknown">● Unknown</span>
+
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+
+                        {% if device.response_time is not none %}
+                            {{ device.response_time|round(0)|int }} ms
+                        {% else %}
+                            —
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+
+                        {% set uptime = namespace(value=0) %}
+
+                        {% for stat in device_stats %}
+
+                            {% if stat.id == device.id %}
+
+                                {% set uptime.value = stat.uptime %}
+
+                            {% endif %}
+
+                        {% endfor %}
+
+                        {{ uptime.value }}%
+
+                    </td>
+
+                </tr>
+
+                {% else %}
+
+                <tr>
+                    <td colspan="6">No devices found.</td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+<section class="two-column">
+
+    <div class="panel">
+
+        <div class="panel-header">
+
+            <div>
+                <h2>Recent Alerts</h2>
+                <p>Latest network events</p>
+            </div>
+
+            <a href="{{ url_for('alerts') }}" class="button secondary">
+                View All
+            </a>
+
+        </div>
+
+        {% if recent_alerts %}
+
+            <div class="activity-list">
+
+                {% for alert in recent_alerts %}
+
+                <div class="activity-item">
+
+                    <div class="activity-icon">!</div>
+
+                    <div>
+
+                        <strong>{{ alert.device_name }}</strong>
+
+                        <p>{{ alert.message }}</p>
+
+                        <small>{{ alert.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</small>
+
+                    </div>
+
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <div class="empty-state">
+                No active alerts.
+            </div>
+
+        {% endif %}
+
+    </div>
+
+
+    <div class="panel">
+
+        <div class="panel-header">
+
+            <div>
+                <h2>Monitoring Activity</h2>
+                <p>Latest 10 checks</p>
+            </div>
+
+        </div>
+
+        {% if recent_activity %}
+
+            <div class="activity-list">
+
+                {% for item in recent_activity[:10] %}
+
+                <div class="activity-item">
+
+                    <div class="activity-icon">
+
+                        {% if item.status == "Online" %}
+                            ✓
+                        {% else %}
+                            !
+                        {% endif %}
+
+                    </div>
+
+                    <div>
+
+                        <strong>{{ item.device.name }}</strong>
+
+                        {% if item.response_time is not none %}
+
+                            <p>
+                                {{ item.status }}
+                                ·
+                                {{ item.response_time|round(0)|int }} ms
+                            </p>
+
+                        {% else %}
+
+                            <p>{{ item.status }}</p>
+
+                        {% endif %}
+
+                        <small>
+                            {{ item.checked_at.strftime('%H:%M:%S') }}
+                        </small>
+
+                    </div>
+
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <div class="empty-state">
+                No monitoring activity yet.
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</section>
+
+<script>
+
+setInterval(function() {
+
+    fetch("/api/status")
+        .then(response => response.json())
+        .then(data => {
+
+            if (!data) {
+                return;
+            }
+
+            console.log("Network status updated:", data);
+
+        })
+        .catch(error => {
+
+            console.log("Monitoring update error:", error);
+
+        });
+
+}, 10000);
+
+</script>
+
+{% endblock %}
+
